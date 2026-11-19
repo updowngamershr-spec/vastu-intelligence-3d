@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+*.log
+.playwright-mcp/
+video_presentation/raw_recordings/
+video_presentation/audio_tracks/
+video_presentation/concat_audio.txt
+video_presentation/master_narration.mp3

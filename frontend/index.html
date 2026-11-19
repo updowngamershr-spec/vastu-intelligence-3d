@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vastu Intelligence 3D - Professional Architectural CAD & Vedic Science</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Konva.js 2D Canvas Engine -->
+    <script src="js/konva.min.js"></script>
+    <!-- Three.js 3D Realistic Architectural Engine & Orbit Controls -->
+    <script src="js/three.min.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/three_view.js"></script>
+</head>
+<body>
+
+    <!-- TOP HEADER NAVBAR -->
+    <header class="navbar">
+        <div class="brand-group">
+            <div class="brand-icon">ॐ</div>
+            <div class="brand-title">
+                <h1>VASTU INTELLIGENCE 3D</h1>
+                <p>વાસ્તુ શાસ્ત્ર અને આર્કિટેક્ચરલ 3D ડિઝાઇન સ્ટુડિયો</p>
+            </div>
+        </div>
+
+        <!-- CENTER VIEW SWITCHER -->
+        <div class="view-mode-bar">
+            <button id="btnView2D" class="view-switch-btn active" title="Switch to 2D Blueprint CAD Mode">
+                📐 2D Blueprint CAD
+            </button>
+            <button id="btnView3D" class="view-switch-btn" title="Switch to 3D Realistic House View">
+                🏠 3D Realistic House
+            </button>
+        </div>
+
+        <div class="nav-actions">
+            <!-- House Presets Selector -->
+            <select id="planPresetSelect" class="preset-dropdown" title="Select Pre-Furnished Architectural Plan">
+                <option value="3bhk_villa" selected>🏡 3BHK Luxury Modern Villa (Vastu Harmonized)</option>
+                <option value="2bhk_east">🏠 2BHK East-Facing Home</option>
+                <option value="empty_plot">📐 Custom Empty Plot (Draw From Scratch)</option>
+            </select>
+
+            <!-- Language Selector with Gujarati First -->
+            <select id="langSelect" class="lang-dropdown">
+                <option value="gu" selected>ગુજરાતી (Gujarati)</option>
+                <option value="hi">हिंदी (Hindi)</option>
+                <option value="en">English</option>
+                <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+            </select>
+
+            <!-- Master 16-Page PDF Report Button -->
+            <button id="btnExportReport" class="btn btn-gold">
+                📑 16-Page Master PDF Report
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN STUDIO WORKSPACE -->
+    <main class="main-workspace">
+
+        <!-- LEFT SIDEBAR -->
+        <aside class="sidebar-left">
+            <!-- Compass True North -->
+            <div class="panel-section">
+                <div class="panel-title">
+                    <span>True North Calibration (દિશા)</span>
+                    <span id="angleDisplay" class="angle-badge">+0.0°</span>
+                </div>
+                <div class="compass-box">
+                    <div class="compass-visual">
+                        <div id="compassNeedle" class="compass-needle"></div>
+                    </div>
+                    <input type="range" id="northSlider" min="-180" max="180" value="0.0" step="0.5" class="range-slider">
+                    <small class="hint-text">Rotate True North (-180° to +180°)</small>
+                </div>
+            </div>
+
+            <!-- Custom Plot Dimensions for Ayadi -->
+            <div class="panel-section">
+                <div class="panel-title">Plot Dimensions (પ્લોટ પરિમાણ)</div>
+                <div class="dim-inputs-grid">
+                    <div>
+                        <label class="input-lbl">Length (Feet / લંબાઈ)</label>
+                        <input type="number" id="inputLength" value="40" class="input-num">
+                    </div>
+                    <div>
+                        <label class="input-lbl">Width (Feet / પહોળાઈ)</label>
+                        <input type="number" id="inputWidth" value="30" class="input-num">
+                    </div>
+                </div>
+                <div id="plotAreaIndicator" class="plot-area-badge">
+                    Total Builtup Area: 1200 Sq.Ft (133.3 Sq.Yards)
+                </div>
+            </div>
+
+            <!-- Selected Room Inspector -->
+            <div id="roomInspectorSection" class="panel-section room-inspector-box" style="display:none;">
+                <div class="panel-title" style="color:#C5A059;">Selected Room Properties</div>
+                <div style="margin-bottom:8px;">
+                    <label class="input-lbl">Room Name / Label</label>
+                    <input type="text" id="editRoomName" class="input-text">
+                </div>
+                <button id="btnDeleteRoom" class="btn-delete-room">
+                    🗑️ Delete Selected Room
+                </button>
+            </div>
+
+            <!-- Vastu Grids & Mandalas -->
+            <div class="panel-section">
+                <div class="panel-title">Vastu Grids & Energy Mandalas</div>
+                <label class="overlay-item">
+                    <input type="checkbox" id="chk16Zones" checked>
+                    <span>16 Directional Zones (Shakti Chakra)</span>
+                </label>
+                <label class="overlay-item">
+                    <input type="checkbox" id="chkBrahmasthan" checked>
+                    <span>Brahmasthan (Center 1/9th)</span>
+                </label>
+                <label class="overlay-item">
+                    <input type="checkbox" id="chk32Entrances" checked>
+                    <span>32 Entrance Padas</span>
+                </label>
+                <label class="overlay-item">
+                    <input type="checkbox" id="chk81Pada">
+                    <span>81 Pada Paramasayika Mandala</span>
+                </label>
+                <label class="overlay-item">
+                    <input type="checkbox" id="chk45Devtas">
+                    <span>45 Devta Energy Fields</span>
+                </label>
+                <label class="overlay-item">
+                    <input type="checkbox" id="chkMarmasthan">
+                    <span>Marmasthan Sensitive Lines</span>
+                </label>
+            </div>
+
+            <!-- Backdrop Tracing Opacity -->
+            <div class="panel-section">
+                <div class="panel-title">Upload Existing House Map</div>
+                <label class="btn btn-outline" style="width:100%; justify-content:center; cursor:pointer; margin-bottom:6px;">
+                    📁 Upload Map Image
+                    <input type="file" id="backdropInput" accept="image/*,.pdf" style="display:none;">
+                </label>
+                <input type="range" id="opacitySlider" min="0" max="1" step="0.05" value="0.45" class="range-slider">
+                <small class="hint-text">Fade background blueprint for easy tracing</small>
+            </div>
+        </aside>
+
+        <!-- CENTER VIEWPORT STUDIO -->
+        <section class="canvas-wrapper">
+            
+            <!-- 2D CAD DRAWING TOOLBAR (Visible in 2D Mode) -->
+            <div id="toolbar2D" class="canvas-toolbar">
+                <div class="toolbar-left">
+                    <button class="tool-btn active" data-tool="select" title="Select & Move Rooms">🖐 Select & Move</button>
+                    
+                    <span class="tool-sep">|</span>
+                    <span class="tool-lbl">Add Room:</span>
+                    <button id="btnAddLiving" class="tool-btn" style="background:#E3F2FD;">+ Living Hall</button>
+                    <button id="btnAddKitchen" class="tool-btn" style="background:#FBE9E7;">+ Kitchen</button>
+                    <button id="btnAddBed" class="tool-btn" style="background:#FFF8E1;">+ Master Bed</button>
+                    <button id="btnAddBed2" class="tool-btn" style="background:#EDE7F6;">+ Bed 2</button>
+                    <button id="btnAddMandir" class="tool-btn" style="background:#FFF9C4;">+ Mandir</button>
+                    <button id="btnAddToilet" class="tool-btn" style="background:#ECEFF1;">+ Toilet</button>
+                    <button id="btnAddBalcony" class="tool-btn" style="background:#E0F2F1;">+ Balcony</button>
+                    <button id="btnAddDining" class="tool-btn" style="background:#FFF3E0;">+ Dining</button>
+
+                    <span class="tool-sep">|</span>
+                    <button class="tool-btn" data-tool="door" title="Click anywhere to place entrance door">🚪 Door</button>
+                    <button class="tool-btn" data-tool="stove" title="Place Gas Stove">🔥 Stove</button>
+                    <button class="tool-btn" data-tool="wc" title="Place WC Commode">🚽 WC</button>
+                    <button class="tool-btn" data-tool="tank" title="Place Underground/Overhead Water Tank">💧 Tank</button>
+                </div>
+
+                <div class="toolbar-right">
+                    <span class="hint-text">💡 Drag rooms to position • Drag corner handles to resize</span>
+                </div>
+            </div>
+
+            <!-- 3D REALISTIC HOUSE TOOLBAR (Visible in 3D Mode) -->
+            <div id="toolbar3D" class="canvas-toolbar" style="display:none; background:#1E222B; color:#FFFFFF;">
+                <div class="toolbar-left">
+                    <span class="tool-lbl" style="color:#E5C66D;">3D Camera View:</span>
+                    <button id="btnCamIso" class="tool-btn active" style="background:#2D323F; color:#FFF;">🧭 Isometric 45°</button>
+                    <button id="btnCamTop" class="tool-btn" style="background:#2D323F; color:#FFF;">📐 Top-Down Plan</button>
+                    <button id="btnCamWalk" class="tool-btn" style="background:#2D323F; color:#FFF;">👁️ Interior Walkthrough</button>
+                    <button id="btnCamFront" class="tool-btn" style="background:#2D323F; color:#FFF;">🏛️ Front Elevation</button>
+
+                    <span class="tool-sep">|</span>
+                    <span class="tool-lbl" style="color:#E5C66D;">Wall Cutaway:</span>
+                    <button id="btnWallLow" class="tool-btn" style="background:#2D323F; color:#FFF;">Low (35%)</button>
+                    <button id="btnWallMid" class="tool-btn active" style="background:#2D323F; color:#FFF;">Mid (70%)</button>
+                    <button id="btnWallFull" class="tool-btn" style="background:#2D323F; color:#FFF;">Full (100%)</button>
+
+                    <span class="tool-sep">|</span>
+                    <button id="btnToggle3DChakra" class="tool-btn" style="background:#2D323F; color:#E5C66D;">🌀 Toggle 3D Chakra</button>
+                </div>
+
+                <div class="toolbar-right">
+                    <span class="hint-text" style="color:#A0AEC0;">🖱️ Left Drag: Orbit 360° • Right Drag: Pan • Scroll: Zoom</span>
+                </div>
+            </div>
+
+            <!-- 2D Konva Canvas Container -->
+            <div id="customCanvasContainer" class="canvas-viewport"></div>
+
+            <!-- 3D Three.js Realistic House Container -->
+            <div id="threeContainer" class="canvas-viewport" style="display:none;"></div>
+        </section>
+
+        <!-- RIGHT SIDEBAR: INTELLIGENCE & AUDIT -->
+        <aside class="sidebar-right">
+            <!-- Telemetry Scorecards -->
+            <div class="scorecards-grid">
+                <div class="score-badge">
+                    <div id="statVastuIndex" class="score-num">88/100</div>
+                    <div class="score-text">Vastu Score</div>
+                </div>
+                <div class="score-badge">
+                    <div id="statAyadi" class="score-num" style="color:#C5A059;">92%</div>
+                    <div class="score-text">Ayadi Resonance</div>
+                </div>
+                <div class="score-badge">
+                    <div id="statSolar" class="score-num" style="color:#E65100;">85%</div>
+                    <div class="score-text">Solar Daylight</div>
+                </div>
+                <div class="score-badge">
+                    <div id="statVent" class="score-num" style="color:#2E7D32;">80%</div>
+                    <div class="score-text">Cross-Ventilation</div>
+                </div>
+            </div>
+
+            <!-- Inspector Tabs -->
+            <div class="inspector-tabs">
+                <div class="inspector-tab active" data-target="tabDoshas">Doshas & Remedies</div>
+                <div class="inspector-tab" data-target="tabRooms">Rooms Audit</div>
+                <div class="inspector-tab" data-target="tabAyadi">Ayadi Math</div>
+            </div>
+
+            <!-- Inspector Body Views -->
+            <div class="inspector-body">
+                <!-- Tab 1: Doshas -->
+                <div id="tabDoshas" class="tab-view">
+                    <div id="findingsContainer"></div>
+                </div>
+
+                <!-- Tab 2: Rooms -->
+                <div id="tabRooms" class="tab-view" style="display:none;">
+                    <div id="roomsContainer"></div>
+                </div>
+
+                <!-- Tab 3: Ayadi -->
+                <div id="tabAyadi" class="tab-view" style="display:none;">
+                    <div class="ayadi-card">
+                        <h4 style="color:#571A2A; margin-bottom:8px; font-size:13px;">Classical Ayadi Shadvarga Resonance</h4>
+                        <div id="ayadiSummaryBox"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- 16-PAGE REPORT MODAL -->
+    <div id="reportModalMask" class="modal-mask">
+        <div class="modal-window">
+            <div class="modal-top">
+                <h3 style="font-family:'Cinzel', serif; font-size:16px;">Vastu Intelligence Pro - Master 16-Page Comprehensive Audit Report</h3>
+                <div style="display:flex; gap:8px;">
+                    <button id="btnPrintReport" class="btn btn-gold">🖨️ Print / Save as Multi-Page PDF</button>
+                    <button id="btnCloseReport" class="btn btn-outline" style="color:#1A1D24; border-color:#CCC;">✕ Close</button>
+                </div>
+            </div>
+            <iframe id="reportFrame" style="flex:1; width:100%; height:100%; border:none;"></iframe>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="js/i18n.js"></script>
+    <script src="js/cad_canvas.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
